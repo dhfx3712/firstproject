@@ -263,3 +263,11 @@ if __name__ == '__main__':
     L = LPRAlg("./1111.jpg")
     L.findVehiclePlate()
     cv.waitKey(0)
+    cv.destroyAllWindows()
+
+
+'''
+车牌畸变与矫正
+https://www.cnblogs.com/HL-space/p/10588423.html
+
+'''
