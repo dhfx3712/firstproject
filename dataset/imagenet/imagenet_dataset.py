@@ -1,11 +1,18 @@
+# coding:utf8
+import os
+from PIL import Image
+from torch.utils import data
+import numpy as np
+from torchvision import transforms as T
+import torch
 
 
-train_datasets = ConeDateSet( args.train_dir, transforms=None)
+# train_datasets = ConeDateSet( args.train_dir, transforms=None)
 
 
 class ConeDateSet(data.Dataset):
 
-    def __init__(self,  lists, transforms=None, train=True, test=False):
+    def __init__(self, database ,lists, transforms=None, train=True, test=False):
 
         self.test = test
         # imgs = [os.path.join(root, img) for img in os.listdir(root)]
@@ -14,19 +21,31 @@ class ConeDateSet(data.Dataset):
             lines = f.readlines()
 
         imgs = []
-        labels = []
+        labels = [] #原始label信息
+        label_uniq = set() #类别总数
         print ("lines:%s"%len(lines))
 
         for line in lines:
             # print(line)
             # a = os.path.join(root, line.split()[0])
-            if os.path.exists(line.split()[0]):
-                imgs.append(line.split()[0])
+            if os.path.exists(os.path.join(database,line.split()[0])):
+                imgs.append(os.path.join(database,line.split()[0]))
                 # b = int(line.split()[1])
                 labels.append(int(line.split()[1]))
+                if int(line.split()[1]) not in label_uniq:
+                    label_uniq.add(int(line.split()[1]))
 
         self.imgs = imgs
+        # print (self.imgs)
         self.labels = labels
+        print (label_uniq)
+
+        label_uniq = list(label_uniq)
+        label_uniq.sort()
+        print (label_uniq)
+
+        self.label2ix ={data:index for index,data in enumerate(label_uniq)} #排序编码后的label信息
+        print (self.label2ix)
 
         if transforms is None:
 
@@ -65,6 +84,30 @@ class ConeDateSet(data.Dataset):
 
 
 
+if __name__ == '__main__':
+
+    dataset = ConeDateSet( '/Users/admin/data/cls','/Users/admin/data/cls/train_helmet.txt')
+    # img, label = dataset[0]
+    for img, label in dataset:
+        print(img.size(), img.float().mean(), label)
+
+
 '''
 return data,label
+
+dataset
+
+(base) admin@bogon cls % tree -L 1
+.
+├── helmet
+├── nohelmet
+├── train_helmet.txt
+└── val_helmet.txt
+
+
+图片数据在helmet和nohelmet
+训练数据和验证数据在*.txt
+helmet/02594300_0214_1_0.9967256784439087.jpg	0
+
+
 '''

@@ -14,6 +14,12 @@ img1_path = '/Users/admin/data/test_project/coco128/images/train2017/00000000003
 img2_path = '/Users/admin/data/test_project/coco128/images/train2017/000000000049.jpg'
 
 
+def plt_img(img, title):
+    fig, ax = plt.subplots(figsize=(2, 2))
+    ax.set_title(title)
+    ax.imshow(img)
+    plt.show()
+
 
 
 def mylearn():
@@ -399,9 +405,115 @@ def mixup():
 
 
 
+def torch_data_transform():
+    from PIL import Image
+    print ("come")
+    img1 = Image.open(img1_path)
+    img1 = img1.convert("RGB")
+    # plt_img(img1,"orig")
+
+    from torchvision import transforms as T
+    import torch
+    transforms = T.Compose([
+    T.ColorJitter(brightness=0.15, contrast=0.1, saturation=0.1, hue=0.1),
+    # T.Grayscale(num_output_channels=1),
+    T.Resize((380, 160)),
+    T.FiveCrop(100), #剪切大小
+    T.Lambda(lambda crops: torch.stack([T.ToTensor()(crop) for crop in crops])),#配合fivecrop设置
+    T.Lambda(lambda tensors: torch.stack([T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                                         (t) for t in tensors])),
+    #两种操作会使一张图片变为5张或者10张，那在喂入模型的时候，显然数据会增多，在训练的时候如果要用的话，需要对 label 进行相应的扩充，使 size 一致。另外一方便，在训练的时候用 RandomCrop 效果可能更好，因为 FiveCrop 或者 TenCrop 虽然一次得到多张图像，但是位置是固定的，多个 epoch 下来，不如 RandomCrop 产生的图像丰富
+    # T.RandomHorizontalFlip(),
+    # T.RandomVerticalFlip(),
+    # # T.RandomRotation(45),
+    # # T.CenterCrop(100),
+    # # T.RandomCrop(100),
+    # T.ToTensor(),
+    # T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+])
+
+    t_img1 = transforms(img1)
+    # t_img1 = t_img1.swapaxes(0, 1)
+    # t_img1 = t_img1.swapaxes(1, 2)
+    print (np.shape(t_img1),np.shape(t_img1[0]))
+    for i in range (5):
+        tmp = t_img1[i].swapaxes(0, 1)
+        tmp = tmp.swapaxes(1, 2)
+        plt_img(tmp, "transform")
+
+
+
+def torch_data_albumentations():
+    # from PIL import Image
+    # print ("come")
+    images = cv2.imread(img1_path)
+    # images = img1.convert("RGB")
+    # plt_img(images,"orig")
+    print(type(images), isinstance(images, np.ndarray))
+
+    image_size = 512
+    import albumentations
+
+    '''
+    
+    transforms = albumentations.Compose([
+        albumentations.HorizontalFlip(p=0.5),
+        albumentations.ImageCompression(quality_lower=99, quality_upper=100),
+        albumentations.ShiftScaleRotate(shift_limit=0.2, scale_limit=0.2, rotate_limit=10, border_mode=0, p=0.7),
+        albumentations.Resize(image_size, image_size),
+        albumentations.Cutout(max_h_size=int(image_size * 0.4), max_w_size=int(image_size * 0.4), num_holes=1, p=0.5),
+        albumentations.Normalize()
+    ])
+    '''
+    transforms = albumentations.Compose([
+        albumentations.Transpose(p=0.5),
+        albumentations.VerticalFlip(p=0.5),
+        albumentations.HorizontalFlip(p=0.5),
+        albumentations.RandomBrightness(limit=0.2, p=0.75),
+        albumentations.RandomContrast(limit=0.2, p=0.75),
+        albumentations.OneOf([
+            albumentations.MotionBlur(blur_limit=5),
+            albumentations.MedianBlur(blur_limit=5),
+            albumentations.GaussianBlur(blur_limit=5),
+            albumentations.GaussNoise(var_limit=(5.0, 30.0)),
+        ], p=0.7),
+
+        albumentations.OneOf([
+            albumentations.OpticalDistortion(distort_limit=1.0),
+            albumentations.GridDistortion(num_steps=5, distort_limit=1.),
+            albumentations.ElasticTransform(alpha=3),
+        ], p=0.7),
+
+        albumentations.CLAHE(clip_limit=4.0, p=0.7),
+        albumentations.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20, val_shift_limit=10, p=0.5),
+        albumentations.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=15, border_mode=0, p=0.85),
+        albumentations.Resize(image_size, image_size),
+        albumentations.Cutout(max_h_size=int(image_size * 0.375), max_w_size=int(image_size * 0.375), num_holes=1,
+                              p=0.7),
+        albumentations.Normalize()
+    ])
+
+
+
+
+
+    t_img1 = transforms(image = images)
+    print (type(t_img1),t_img1.keys(),np.shape(t_img1['image']))
+    tmp = t_img1['image']
+
+    plt_img(tmp, "transform")
+
+
+
+
+
+
+
 if __name__ == '__main__':
     # test1()
-    mixup()
+    # mixup()
+    # torch_data_transform()
+    torch_data_albumentations()
 
 '''
 过实际图像增强中不会去使用旋转、透视等，因为若这样做原始的box变换后是倾斜的不规则的，无法获取用于训练的外接矩形框
@@ -413,5 +525,8 @@ https://blog.csdn.net/weixin_41946992/article/details/105670935
 
 数据增强其他方案
 https://blog.csdn.net/u013685264/article/details/122622919
+
+
+
 
 '''

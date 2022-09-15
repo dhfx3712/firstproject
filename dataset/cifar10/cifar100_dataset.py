@@ -1,11 +1,10 @@
-
-image_datasets['train'] = ImageNetTrainDataSet(os.path.join(args.data_dir, 'cifar100' ,'data'),
-                                               os.path.join(args.data_dir, 'cifar100', 'label' ,'label.txt'),
-                                               data_transforms['train'])
-
-
+from torchvision import transforms, datasets
+import os
+import torch
+from PIL import Image
 
 
+IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm']
 
 
 class ImageNetTrainDataSet(torch.utils.data.Dataset):
@@ -21,7 +20,8 @@ class ImageNetTrainDataSet(torch.utils.data.Dataset):
         self.data_transforms = data_transforms
         self.label_dic = label_dic
         self.root_dir = root_dir
-        self.imgs = self._make_dataset()
+        self.imgs = self._make_dataset() #构建图片地址和label索引
+        print (self.imgs[0:5])
 
     def __len__(self):
         return len(self.imgs)
@@ -72,6 +72,41 @@ class ImageNetTrainDataSet(torch.utils.data.Dataset):
 
 
 
+data_transforms = {
+    'train': transforms.Compose([
+        transforms.Resize(256),
+        transforms.RandomCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+    'val': transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+}
+
+
+if __name__ == '__main__':
+    image_datasets = {}
+    image_datasets['train'] = ImageNetTrainDataSet(os.path.join('/Users/admin/data', 'cifar100' ,'data'),
+                                               os.path.join('/Users/admin/data', 'cifar100', 'label' ,'label.txt'),
+                                               data_transforms['train'])
+
+
+
+
+
+
+
+
+
+
+
+'''
+
 import se_resnet
 import se_resnext
 
@@ -107,5 +142,6 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
                     labels = Variable(labels.cuda())
                 else:
                     inputs, labels = Variable(inputs), Variable(labels)
+'''
 
 
