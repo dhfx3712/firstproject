@@ -117,11 +117,11 @@ class LPRAlg:
         #cv.imshow("imgOpen", imgOpen)
         self.plt_img(imgOpen, "open")
 
-        imgOpenWeight = cv.addWeighted(imgGary, 1, imgOpen, -1, 0)
+        imgOpenWeight = cv.addWeighted(imgGary, 1, imgOpen, -1, 0) #addWeighted饱和算法，255截断
         #cv.imshow("imgOpenWeight", imgOpenWeight)
         self.plt_img(imgOpenWeight, "imgopenweight")
 
-        ret, imgBin = cv.threshold(imgOpenWeight, 0, 255, cv.THRESH_OTSU + cv.THRESH_BINARY)
+        ret, imgBin = cv.threshold(imgOpenWeight, 0, 255, cv.THRESH_OTSU + cv.THRESH_BINARY) #imgOpenWeight为什么是一个灰度双峰图，有前景和背景的图基本具有双峰特点
         #cv.imshow("imgBin", imgBin)
         self.plt_img(imgBin, "imgopenweight--bin")
 
@@ -313,5 +313,9 @@ if __name__ == '__main__':
 '''
 车牌畸变与矫正
 https://www.cnblogs.com/HL-space/p/10588423.html
+
+长边表示法
+https://blog.csdn.net/qq_41910905/article/details/119572139
+
 
 '''
