@@ -1,0 +1,22 @@
+# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+
+name: Close stale issues
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs at 00:00 UTC every day
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: |
+            👋 Hello, close
+
+          stale-pr-message: 'www'
+          days-before-stale: 1
+          days-before-close: 1
+          exempt-issue-labels: 'TODO'
+          operations-per-run: 100  # The maximum number of operations per run, used to control rate limiting.
