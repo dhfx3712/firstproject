@@ -314,7 +314,12 @@ if __name__ == '__main__':
 车牌畸变与矫正
 https://www.cnblogs.com/HL-space/p/10588423.html
 
+
 www
+
+长边表示法
+https://blog.csdn.net/qq_41910905/article/details/119572139
+
 
 
 '''
