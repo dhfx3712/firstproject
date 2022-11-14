@@ -19,13 +19,17 @@ class ASPP(nn.Module):
         size = x.shape[2:]
 
         image_features = self.mean(x)
+        print (f'mean : {image_features.shape},{image_features[0,0,:]}')
         image_features = self.conv(image_features)
+        print (f'conv : {image_features.shape},{image_features[0,0,:]}')
         image_features = F.interpolate(image_features, size=size, mode='bilinear')
+        print (f'interplote : {image_features.shape},{image_features[0,0,0,:]}')
 
         atrous_block1 = self.atrous_block1(x)
         atrous_block6 = self.atrous_block6(x)
         atrous_block12 = self.atrous_block12(x)
         atrous_block18 = self.atrous_block18(x)
+        print(f'atrous1 : {atrous_block1.shape} ,atrous6 : {atrous_block6.shape} ,atrous12 : {atrous_block12.shape} ,,atrous18 : {atrous_block18.shape}')
 
         cat = torch.cat([image_features, atrous_block1, atrous_block6,
                          atrous_block12, atrous_block18], dim=1)
@@ -36,3 +40,9 @@ class ASPP(nn.Module):
 aspp = ASPP(256)
 out = torch.rand(2, 256, 13, 13)
 print(aspp(out).shape)
+
+'''
+还是每个空洞卷积的输出，大小都是一样的，所以在通道维度可以concat
+2p-k-(kd-k-d+1)=2p-k-kd+k+d-1=-1 输入和输出一致
+https://blog.csdn.net/weixin_42475184/article/details/115394357
+'''
