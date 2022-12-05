@@ -71,6 +71,32 @@ def plt_img( img, title):
     ax.imshow(img)
     plt.show()
 
+import cv2
+
+
+
+
+def load_cityscapes():
+    label = cv2.imread('/Users/admin/Downloads/cityscapes/gtFine/val/frankfurt/frankfurt_000000_000294_gtFine_labelIds.png')
+    print ("label",np.shape(label))
+    cv2.imshow('image', label)
+    cv2.waitKey(0)
+
+    label = cv2.imread('/Users/admin/Downloads/ADE20K/data/ADE20K_2016_07_26/images/training/b/backstage/ADE_train_00002063_seg.png')
+    print ("label",np.shape(label),)
+    cv2.imshow('image', label)
+    cv2.waitKey(0)
+    for i in range(3):
+        cv2.imshow('image', label[:,:,i])
+        cv2.waitKey(0)
+
+
+
+
+
+
+
 if __name__=="__main__":
     # mv_file()
-    load_pic()
+    # load_pic()
+    load_cityscapes()
